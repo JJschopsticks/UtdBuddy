@@ -1,0 +1,96 @@
+[gd_scene format=3 uid="uid://bn6g3ofkisync"]
+
+[ext_resource type="Script" uid="uid://xi35uktgq5ak" path="res://Scripts/PetController.gd" id="1_blq88"]
+[ext_resource type="Texture2D" uid="uid://dx7m5t2svp7uh" path="res://Sprite Tobor/ToborRight.png" id="2_jpp57"]
+[ext_resource type="Script" uid="uid://i5farhxh0s2" path="res://tobor_movement.gd" id="3_p7afd"]
+[ext_resource type="Script" uid="uid://cfcd77ibvtetr" path="res://bubble_control.gd" id="4_gegve"]
+
+[node name="Main" type="Control" unique_id=1296332810]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_blq88")
+
+[node name="APIRequest" type="HTTPRequest" parent="." unique_id=1276301162]
+
+[node name="Tobor" type="Sprite2D" parent="." unique_id=322106693]
+position = Vector2(796, 1214)
+scale = Vector2(0.6035156, 0.68652344)
+texture = ExtResource("2_jpp57")
+script = ExtResource("3_p7afd")
+
+[node name="tobor_movement_gd" type="Node2D" parent="Tobor" unique_id=2141199232]
+
+[node name="Bubble Control" type="Control" parent="." unique_id=847449300]
+anchors_preset = 0
+offset_left = 120.0
+offset_top = 532.0
+offset_right = 511.0
+offset_bottom = 747.0
+script = ExtResource("4_gegve")
+
+[node name="ClassroomBubble" type="Button" parent="Bubble Control" unique_id=1559895167]
+layout_mode = 0
+offset_left = 820.0
+offset_top = 279.0
+offset_right = 1219.0
+offset_bottom = 469.0
+theme_override_font_sizes/font_size = 63
+text = "Classroom 
+Avaliable"
+autowrap_mode = 3
+
+[node name="EventBubble" type="Button" parent="Bubble Control" unique_id=173669866]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.33
+anchor_top = -1.728
+anchor_right = -0.33
+anchor_bottom = -1.728
+offset_left = 505.03
+offset_top = 677.52
+offset_right = 900.03
+offset_bottom = 803.52
+theme_override_font_sizes/font_size = 63
+text = "UTD Events"
+autowrap_mode = 3
+
+[node name="ChatPanel" type="Panel" parent="." unique_id=2078142245]
+layout_mode = 0
+offset_left = 494.0
+offset_top = 491.0
+offset_right = 1393.0
+offset_bottom = 779.0
+
+[node name="ResponseLabel" type="Label" parent="ChatPanel" unique_id=832976018]
+light_mask = 256
+visibility_layer = 512
+layout_mode = 0
+offset_left = 8.0
+offset_top = 20.0
+offset_right = 851.0
+offset_bottom = 287.0
+theme_override_font_sizes/font_size = 41
+text = "Hello!"
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="InputBox" type="TextEdit" parent="." unique_id=874101050]
+show_behind_parent = true
+visibility_layer = 64
+layout_mode = 0
+offset_left = 491.0
+offset_top = 796.0
+offset_right = 1391.0
+offset_bottom = 1099.0
+theme_override_font_sizes/font_size = 40
+placeholder_text = "Type your question here!"
+wrap_mode = 1
+
+[node name="SendButton" type="Button" parent="." unique_id=1531352422]
+layout_mode = 0
+offset_left = 1461.0
+offset_top = -159.0
+offset_right = 2321.0
+offset_bottom = 386.45264
+scale = Vector2(1, 1.0101702)
+flat = true
