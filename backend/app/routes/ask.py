@@ -19,23 +19,36 @@ async def ask_utd_buddy(request: AskRequest):
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
     
-    # 1. Fetch Context from Nebula
-    logger.info(f"Querying Nebula for: {question}")
-    nebula_response = nebula_client.search(question)
+    # 1. Ask Gemini to extract intent (course vs professor and the param mapping)
+    logger.info(f"Extracting intent for: {question}")
+    intent_data = ai_wrapper.extract_intent(question)
     
+    endpoint = intent_data.get("endpoint", "none")
+    params = intent_data.get("params", {})
+    
+    logger.info(f"Routed intent -> endpoint: {endpoint}, params: {params}")
+    
+    # 2. Fetch specific Context from Nebula based on intent
+    nebula_context = {}
+    
+    if endpoint == "course":
+        nebula_response = nebula_client.search_course(params)
+    elif endpoint == "professor":
+        nebula_response = nebula_client.search_professor(params)
+    else:
+        # If Gemini couldn't map it, or thinks it's a generic question, we don't query Nebula
+        nebula_response = {"results": [], "message": "No relevant UTD data needed."}
+        
     # Check if there was an error in the Nebula response
     if "error" in nebula_response:
         logger.warning(f"Nebula context retrieval failed: {nebula_response['error']}")
-        # We can either fail here, or pass an empty context to Gemini. 
-        # We'll pass the error as context and Gemini will tell the user it couldn't find UTD data.
         nebula_context = {"warning": "Nebula API Unavailable", "details": nebula_response}
     else:
-        # Pass the structured data forward to Gemini
         nebula_context = nebula_response
     
-    # 2. Generate Conversation with Gemini
+    # 3. Generate Conversation with Gemini using the targeted context
     logger.info("Generating Gemini response...")
     ai_answer = ai_wrapper.generate_response(question, nebula_context)
     
-    # 3. Return JSON back to Godot
+    # 4. Return JSON back to Godot
     return AskResponse(answer=ai_answer)

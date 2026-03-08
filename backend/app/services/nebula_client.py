@@ -9,36 +9,49 @@ class NebulaClient:
         self.api_key = os.getenv("NEBULA_API_KEY")
         self.base_url = os.getenv("NEBULA_BASE_URL", "https://api.nebulalabs.com/v1")
         self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
+            "x-api-key": self.api_key,
             "Content-Type": "application/json"
         }
         
-    def search(self, query: str) -> dict:
-        """
-        Queries the Nebula API with the given string.
-        Returns the JSON response from Nebula.
-        """
-        # Note: If the actual Nebula search endpoint is different from /search,
-        # adjust this URL path accordingly.
-        url = f"{self.base_url}/search"
-        params = {"q": query}
-        
+    def _execute_query(self, endpoint: str, params: dict) -> dict:
+        url = f"{self.base_url}/{endpoint}"
         try:
-            # We add a timeout so the request to Gemini doesn't hang indefinitely if Nebula is down
             response = requests.get(url, headers=self.headers, params=params, timeout=10)
             response.raise_for_status()
-            return response.json()
+            
+            # The Nebula API returns a wrapper containing { "message": "success", "data": [...] }
+            json_resp = response.json()
+            if json_resp.get("message") == "success" and json_resp.get("data") is not None:
+                return {"results": json_resp["data"]}
+            else:
+                return {"results": [], "message": "API returned no data"}
+                
         except requests.exceptions.HTTPError as e:
-            # You might want to pass these up, but for now we just return an error dict 
-            # to let Gemini know that Nebula data retrieval failed.
-            if e.response.status_code == 401:
+            if e.response.status_code == 401 or e.response.status_code == 403:
                 logger.error("Nebula API Key is invalid or missing.")
             else:
-                logger.error(f"Nebula Client error: {e}")
-            return {"error": str(e), "message": "Could not retrieve context from Nebula"}
+                logger.error(f"Nebula Client error: {e.response.text}")
+            return {"error": str(e), "details": e.response.text}
         except Exception as e:
             logger.error(f"Failed to connect to Nebula: {e}")
             return {"error": str(e), "message": "Failed to connect to Nebula. Service may be offline."}
+
+    def search_course(self, params: dict) -> dict:
+        """
+        Queries the Nebula /course endpoint.
+        Valid params include: subject_prefix, course_number, title
+        """
+        logger.info(f"Querying Nebula /course with {params}")
+        return self._execute_query("course", params)
+        
+    def search_professor(self, params: dict) -> dict:
+        """
+        Queries the Nebula /professor endpoint.
+        Valid params include: first_name, last_name
+        """
+        logger.info(f"Querying Nebula /professor with {params}")
+        return self._execute_query("professor", params)
+
 
 # Instantiate a single global client to use in our routes
 nebula_client = NebulaClient()
