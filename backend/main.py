@@ -73,12 +73,16 @@ async def ask_pet(request: QueryRequest):
     try:
         # ✅ FIXED: Real prompt string (not placeholder ...)
         prompt = (
-            f"You are a friendly UTD Desk Pet assistant. "
-            f"Use the following system data to answer accurately. "
-            f"If the data is empty or says 'unavailable', answer based on general knowledge. "
-            f"Keep responses concise (1-2 sentences) and playful.\n\n"
-            f"System Data: {nebula_data}\n"
-            f"User Question: {request.question}"
+            f"You are a friendly UTD Desk Pet assistant.\n\n"
+            f"### INSTRUCTIONS:\n"
+            f"1. Use ONLY the System Data below to answer questions about UTD events, classrooms, or clubs.\n"
+            f"2. If the System Data is empty, unavailable, or doesn't contain the answer, say so politely and offer general help.\n"
+            f"3. Keep responses concise (1-2 sentences), playful, and emoji-friendly.\n\n"
+            f"### SYSTEM DATA (from Nebula Labs):\n"
+            f"{json.dumps(nebula_data, indent=2) if nebula_data else 'No data available'}\n\n"
+            f"### USER QUESTION:\n"
+            f"{request.question}\n\n"
+            f"### YOUR RESPONSE:"
         )
         
         # ✅ OLD API syntax (works with google-generativeai package)
