@@ -30,12 +30,14 @@ script = ExtResource("4_4p4ly")
 
 [node name="ClassroomBubble" type="Button" parent="Bubble Control" unique_id=1559895167]
 layout_mode = 0
-offset_left = -22.0
-offset_top = 114.0
-offset_right = 554.0
-offset_bottom = 390.0
+offset_left = 885.0
+offset_top = 302.0
+offset_right = 1284.0
+offset_bottom = 492.0
 theme_override_font_sizes/font_size = 63
-text = "Classroom Avaliable"
+text = "Classroom 
+Avaliable"
+autowrap_mode = 3
 
 [node name="EventBubble" type="Button" parent="Bubble Control" unique_id=173669866]
 layout_mode = 1
@@ -44,39 +46,45 @@ anchor_left = -0.33
 anchor_top = -1.728
 anchor_right = -0.33
 anchor_bottom = -1.728
-offset_left = 827.03
-offset_top = 494.52002
-offset_right = 1363.03
-offset_bottom = 765.52
+offset_left = 549.03
+offset_top = 674.52
+offset_right = 944.03
+offset_bottom = 800.52
 theme_override_font_sizes/font_size = 63
 text = "UTD Events"
+autowrap_mode = 3
 
 [node name="ChatPanel" type="Panel" parent="." unique_id=2078142245]
 layout_mode = 0
-offset_left = 844.0
-offset_top = 395.0
-offset_right = 1558.0
-offset_bottom = 1191.0
+offset_left = 494.0
+offset_top = 491.0
+offset_right = 1461.0
+offset_bottom = 779.0
 
 [node name="ResponseLabel" type="Label" parent="ChatPanel" unique_id=832976018]
+light_mask = 256
+visibility_layer = 512
 layout_mode = 0
-offset_left = 2.0
-offset_top = 14.0
-offset_right = 690.0
-offset_bottom = 808.0
+offset_left = 8.0
+offset_top = 20.0
+offset_right = 977.0
+offset_bottom = 287.0
 theme_override_font_sizes/font_size = 50
 text = "Hello!"
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="InputBox" type="LineEdit" parent="." unique_id=874101050]
+[node name="InputBox" type="TextEdit" parent="." unique_id=874101050]
+show_behind_parent = true
+visibility_layer = 64
 layout_mode = 0
-offset_left = 905.0
-offset_top = 562.0
-offset_right = 1778.5
-offset_bottom = 1105.0
-theme_override_font_sizes/font_size = 60
-text = "Given Prompt"
+offset_left = 500.0
+offset_top = 800.0
+offset_right = 1452.0
+offset_bottom = 1103.0
+theme_override_font_sizes/font_size = 40
+placeholder_text = "Type your question here!"
+wrap_mode = 1
 
 [node name="SendButton" type="Button" parent="." unique_id=1531352422]
 layout_mode = 0

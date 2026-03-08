@@ -2,13 +2,14 @@ extends Control
 
 # === NODE REFERENCES (Will find nodes by name, not path) ===
 var api_request: HTTPRequest
-var input_box: LineEdit
+var input_box: TextEdit
 var response_label: Label
 var pet_sprite: Node
 var send_button: Button
 var bubble_container: Control
 var event_bubble: Button
 var classroom_bubble: Button
+var chat_panel: Control
 
 # === CONFIGURATION ===
 const BACKEND_URL = "http://127.0.0.1:8000/ask"
@@ -22,15 +23,14 @@ const QUERY_PROMPTS = {
 func show_initial_ui():
 	if bubble_container:
 		bubble_container.visible = true
-	var chat_panel = _find_node_by_name("ChatPanel")
 	if chat_panel:
 		chat_panel.visible = true
 	if input_box:
-		input_box.visible = true
+		input_box.visible = false
 		input_box.text = ""
 		input_box.editable = true
 	if send_button:
-		send_button.visible = true
+		send_button.visible = false
 		send_button.disabled = false
 	if response_label:
 		response_label.text = "👋 Hello! Click a bubble or type a question."
@@ -38,7 +38,6 @@ func show_initial_ui():
 func hide_chat_ui():
 	if bubble_container:
 		bubble_container.visible = false
-	var chat_panel = _find_node_by_name("ChatPanel")
 	if chat_panel:
 		chat_panel.visible = false
 	if input_box:
@@ -60,8 +59,8 @@ func _ready():
 	if send_button:
 		send_button.pressed.connect(_on_send_pressed)
 	if input_box:
-		input_box.text_submitted.connect(_on_send_pressed)
 		input_box.text_changed.connect(_on_typing_started)
+		input_box.gui_input.connect(_on_input_box_gui_input)
 	if api_request:
 		api_request.request_completed.connect(_on_request_completed)
 	
@@ -86,9 +85,9 @@ func _ready():
 # === FIND NODES (Robust method) ===
 func _find_nodes():
 	api_request = _find_node_by_type(HTTPRequest)
-	input_box = _find_node_by_type(LineEdit)
+	input_box = _find_node_by_type(TextEdit)
 	
-	var chat_panel = _find_node_by_name("ChatPanel")
+	chat_panel = _find_node_by_name("ChatPanel")
 	if chat_panel:
 		response_label = _find_node_by_name_in_parent(chat_panel, "Response")
 		if not response_label:
@@ -153,14 +152,26 @@ func _process(_delta):
 		global_position = get_global_mouse_position() - drag_offset
 
 # === INPUT EVENT LISTENER ===
-func _on_typing_started(_new_text: String):
+func _on_typing_started(_new_text: String = ""):
 	if bubble_container and bubble_container.visible:
 		bubble_container.visible = false
 
+func _on_input_box_gui_input(event: InputEvent):
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			# Prevent new line from actually typing
+			get_viewport().set_input_as_handled()
+			_on_send_pressed()
+
 # === BUBBLE CLICK HANDLER ===
 func _on_bubble_pressed(query_type: String):
+	var prompt = QUERY_PROMPTS[query_type]
 	if input_box:
-		input_box.text = QUERY_PROMPTS[query_type]
+		input_box.text = prompt
+		input_box.visible = true
+	if send_button:
+		send_button.visible = true
+	
 	if bubble_container:
 		bubble_container.visible = false
 
@@ -180,7 +191,7 @@ func _send_query_to_backend(question: String, query_type: String = "general"):
 		send_button.disabled = true
 		send_button.visible = false
 	
-	var body = { 
+	var body = {
 		"question": question,
 		"query_type": query_type
 	}
@@ -202,7 +213,7 @@ func _on_send_pressed(_ignore_text: String = ""):
 		return
 		
 	var question = input_box.text.strip_edges()
-	if question.is_empty(): 
+	if question.is_empty():
 		return
 	
 	_send_query_to_backend(question, "custom")
