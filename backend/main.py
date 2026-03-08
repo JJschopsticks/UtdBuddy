@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import os
-from google import generativeai as genai  # ✅ OLD package (note: "generativeai")
+from google import genai
 from dotenv import load_dotenv
-
+import json 
 # === LINE 10-11: Load our secret keys from .env file ===
 load_dotenv()
 
@@ -28,10 +28,7 @@ GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_KEY:
     raise ValueError("GEMINI_API_KEY not found in .env file!")
 
-genai.configure(api_key=GEMINI_KEY)
-# ✅ Use a model that's actually available
-model = genai.GenerativeModel('gemini-1.5-flash')
-
+client = genai.Client(api_key=GEMINI_KEY)
 # === LINE 31-33: Set up Nebula API (FIXED) ===
 # ✅ FIXED: Removed trailing spaces from URL
 NEBULA_BASE_URL = os.getenv("NEBULA_BASE_URL", "https://api.utdnebula.com").strip()
@@ -56,9 +53,9 @@ async def ask_pet(request: QueryRequest):
     if NEBULA_KEY:
         try:
             resp = requests.get(
-                f"{NEBULA_BASE_URL}/search",
-                headers={"Authorization": f"Bearer {NEBULA_KEY}"},
-                params={"q": request.question},
+                f"{NEBULA_BASE_URL}/rooms",
+                headers={"x-api-key": NEBULA_KEY},
+                #params={"q": request.question},
                 timeout=3
             )
             if resp.status_code == 200:
@@ -86,7 +83,7 @@ async def ask_pet(request: QueryRequest):
         )
         
         # ✅ OLD API syntax (works with google-generativeai package)
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
         
         return {
             "answer": response.text,

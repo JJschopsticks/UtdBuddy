@@ -23,29 +23,30 @@ if not NEBULA_KEY:
     print("   NEBULA_API_KEY=your_key_here")
     exit(1)
 
-# Test questions to try
-test_queries = [
-    "events",
-    "hackathon",
-    "classrooms",
-    "study spaces",
-    "clubs"
-]
+from datetime import date
 
-for query in test_queries:
-    print(f"\n🔎 Testing query: '{query}'")
-    print("-" * 50)
+today = date.today().isoformat()
+
+# Test questions to try
+test_queries = {
+    "events": f"/events/{today}",
+    "hackathon": f"/events/{today}",
+    "classrooms": "/rooms",
+    "study spaces": "/rooms",
+    "clubs": "/club/search"
+
+}
+
+for query, endpoint in test_queries.items():   # unpack both key AND value
+    url = f"{NEBULA_BASE_URL}{endpoint}"        # use the endpoint path
+    params = {}                                  # most Nebula endpoints don't use ?q=
     
     try:
         # Make the API request
-        url = f"{NEBULA_BASE_URL}/search"
-        headers = {"Authorization": f"Bearer {NEBULA_KEY}"}
-        params = {"q": query}
-        
+        headers = {"x-api-key": NEBULA_KEY}  # ✅ correct auth
         print(f"📡 Request: GET {url}")
-        print(f"📋 Params: {params}")
         
-        response = requests.get(url, headers=headers, params=params, timeout=5)
+        response = requests.get(url, headers=headers, timeout=5)  # ✅ no params
         
         print(f"📊 Status Code: {response.status_code}")
         
