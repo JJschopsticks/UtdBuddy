@@ -83,7 +83,7 @@ async def ask_pet(request: QueryRequest):
         )
         
         # ✅ OLD API syntax (works with google-generativeai package)
-        response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
+        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         
         return {
             "answer": response.text,
